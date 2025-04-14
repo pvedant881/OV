@@ -9,4 +9,4 @@ services:
       - key: PORT
         value: 10000
       - key: GEMINI_API_KEY
-        value: your_actual_gemini_api_key
+        value: AIzaSyBF77bxroQkBHJ2Q1PhUlHtJLb8yhruVi8
