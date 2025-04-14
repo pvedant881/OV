@@ -200,7 +200,8 @@ def index():
     """, answer=answer)
 
 if __name__ == '__main__':
-    # Use the port provided by Render
-    port = int(os.getenv('PORT', 5000))  # Default to 5000 if the environment variable is not set
+    # Manually specify the port
+    port = 5000  # You can change this if necessary, but 5000 is commonly used
     print(f"\n🌐 Chatbot is running at: http://0.0.0.0:{port}")
+    # Use '0.0.0.0' to bind to all interfaces and listen on the specified port
     app.run(host='0.0.0.0', port=port)
