@@ -320,7 +320,7 @@ template = """
             </form>
             {% if answer %}
                 <div class="answer">
-                    <h3>Gemini Answer:</h3>
+                    <h3>Knowledge Base:</h3>
                     <div>{{ answer }}</div>
                 </div>
             {% endif %}
