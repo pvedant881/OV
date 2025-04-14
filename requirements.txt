@@ -5,3 +5,4 @@ beautifulsoup4
 google-generativeai
 openpyxl
 scikit-learn
+gunicorn
