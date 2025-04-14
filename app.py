@@ -263,13 +263,18 @@ template = """
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OneVoice Assistant</title>
   <style>
-    body {
+    /* General resets and layout */
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: 'Segoe UI', sans-serif;
+      height: 100%;
       background-color: #f9fafb;
+    }
+
+    body {
       display: flex;
       flex-direction: column;
-      height: 100vh;
     }
 
     .chat-container {
@@ -278,6 +283,7 @@ template = """
       padding: 24px;
       display: flex;
       flex-direction: column;
+      justify-content: flex-end;
     }
 
     .message {
@@ -291,6 +297,7 @@ template = """
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       position: relative;
       transition: all 0.3s ease;
+      font-size: 1rem;
     }
 
     .user {
@@ -314,6 +321,7 @@ template = """
       background-color: #fff;
       align-items: center;
       gap: 10px;
+      justify-content: space-between;
     }
 
     textarea {
@@ -325,6 +333,7 @@ template = """
       resize: none;
       outline: none;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      font-family: 'Segoe UI', sans-serif;
     }
 
     input[type="submit"], .mic-btn {
