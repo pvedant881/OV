@@ -5,7 +5,6 @@ import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 from urllib.parse import urljoin
-import socket
 import re
 import time
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -45,7 +44,7 @@ def read_file(file_path):
     except Exception as e:
         return f"Error reading {file_path}: {e}"
 
-# --- Crawl website content deeply (up to 10,000 pages) ---
+# --- Crawl website content deeply (up to 100 pages) ---
 def crawl_website(base_url, max_pages=100):
     visited = set()
     to_visit = [base_url]
@@ -233,7 +232,8 @@ Answer helpfully and clearly:
         try:
             response = model.generate_content(prompt)
             answer = response.text
-                # --- Auto convert image URLs to <img> tags ---
+
+            # --- Auto convert image URLs to <img> tags ---
             def convert_image_links(text):
                 # Match Markdown-style ![desc](url)
                 text = re.sub(r'!\[.*?\]\((https?:\/\/[^\s)]+)\)', r'<img src="\1" class="product-image">', text)
@@ -244,254 +244,98 @@ Answer helpfully and clearly:
             answer = convert_image_links(answer)
             session['history'].append({'role': 'bot', 'text': answer})
         except Exception as e:
-            answer = f"Error: {e}"
+            answer = f"Error generating response: {e}"
 
-    return render_template_string(template, answer=answer, history=session['history'])
-
-# --- Clear history route (optional) ---
-@app.route('/clear')
-def clear():
-    session.clear()
-    return "History cleared. <a href='/'>Go back</a>"
-
-# --- HTML template ---
-template = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OneVoice Assistant</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      height: 100%;
-      background-color: #f9fafb;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-
-    .message {
-      max-width: 75%;
-      padding: 16px 20px;
-      border-radius: 18px;
-      margin-bottom: 16px;
-      white-space: pre-wrap;
-      line-height: 1.5;
-      word-wrap: break-word;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .user {
-      background-color: #dcf4ff;
-      align-self: flex-end;
-      border-bottom-right-radius: 0;
-    }
-
-    .bot {
-      background-color: #ffffff;
-      align-self: flex-start;
-      border-bottom-left-radius: 0;
-      border-left: 4px solid #007BFF;
-      position: relative;
-    }
-
-    .chat-form {
-      display: flex;
-      padding: 16px;
-      border-top: 1px solid #ddd;
-      background-color: #fff;
-      justify-content: flex-start;
-      gap: 10px;
-      align-items: center;
-    }
-
-    textarea {
-      width: 85%;
-      padding: 14px;
-      font-size: 1em;
-      border-radius: 16px;
-      border: 1px solid #ccc;
-      resize: none;
-      outline: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      font-family: 'Segoe UI', sans-serif;
-      transition: all 0.3s ease;
-    }
-
-    .mic-btn {
-      padding: 14px;
-      font-size: 1em;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .mic-btn:hover {
-      background-color: #0056b3;
-    }
-
-    input[type="submit"] {
-      padding: 14px 20px;
-      font-size: 1em;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    input[type="submit"]:hover {
-      background-color: #0056b3;
-    }
-
-    .image-tools {
-      margin-top: 8px;
-    }
-
-    .image-tools a {
-      font-size: 0.85em;
-      margin-right: 12px;
-      text-decoration: none;
-      color: #007BFF;
-      cursor: pointer;
-    }
-
-    .image-tools a:hover {
-      text-decoration: underline;
-    }
-
-    .loading-spinner {
-      width: 24px;
-      height: 24px;
-      border: 4px solid #ddd;
-      border-top: 4px solid #007BFF;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 10px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #ccc;
-      border-radius: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #999;
-    }
-
-    /* Ensure the chat input and buttons are aligned */
-    .chat-form button,
-    .chat-form input[type="submit"] {
-      margin-left: 10px;
-    }
-
-  </style>
-</head>
-<body>
-  <div class="chat-container" id="chat-container">
-    {% for item in history|reverse %}
-      <div class="message {{ 'user' if item.role == 'user' else 'bot' }}" id="message-{{ loop.index }}">
-        {{ item.text | safe }}
-        {% if item.role == 'bot' %}
-          <script>
-            // Typewriter effect for bot's message
-            const messageId = "message-{{ loop.index }}";
-            const messageText = "{{ item.text | striptags | escape | replace('"', '') }}";
-            let i = 0;
-            const messageElement = document.getElementById(messageId);
-            messageElement.innerHTML = ''; // Clear message initially
-
-            function typeWriter() {
-              if (i < messageText.length) {
-                messageElement.innerHTML += messageText.charAt(i);
-                i++;
-                setTimeout(typeWriter, 50); // Adjust typing speed (in ms)
-              }
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ChatBot</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                padding: 20px;
             }
+            .chat-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .chat-box {
+                max-height: 400px;
+                overflow-y: auto;
+                margin-bottom: 20px;
+            }
+            .message {
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 5px;
+            }
+            .user {
+                background-color: #d1f7d7;
+                text-align: right;
+            }
+            .bot {
+                background-color: #e3e3e3;
+                text-align: left;
+            }
+            .input-container {
+                display: flex;
+                margin-top: 20px;
+            }
+            .input-container input {
+                flex: 1;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            .input-container button {
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #4CAF50;
+                color: white;
+                cursor: pointer;
+            }
+            .input-container button:hover {
+                background-color: #45a049;
+            }
+            .product-image {
+                max-width: 100px;
+                max-height: 100px;
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="chat-container">
+            <h2>Chat with Our Support Agent</h2>
+            <div class="chat-box">
+                {% for message in session['history'] %}
+                    <div class="message {{ message['role'] }}">
+                        <strong>{{ message['role'] | capitalize }}:</strong>
+                        <p>{{ message['text'] | safe }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <form method="post" class="input-container">
+                <input type="text" name="question" placeholder="Ask me anything..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    """, answer=answer)
 
-            typeWriter(); // Start typing effect
-          </script>
-        {% endif %}
-        {% if 'img class="product-image"' in item.text %}
-          <div class="image-tools">
-            {% set image_url = item.text.split('src="')[1].split('"')[0] %}
-            <a href="{{ image_url }}" target="_blank">View Full Image</a>
-            <a onclick="navigator.clipboard.writeText('{{ image_url }}'); alert('Image link copied!')">Copy Image Link</a>
-          </div>
-        {% endif %}
-      </div>
-    {% endfor %}
-    {% if loading %}
-      <div class="message bot">
-        <div class="loading-spinner"></div>
-      </div>
-    {% endif %}
-  </div>
-
-  <div class="chat-form">
-    <form method="post">
-      <textarea name="question" rows="2" placeholder="Ask your question..." id="questionBox" required>{{ request.form.question or '' }}</textarea>
-      <button type="button" class="mic-btn" onclick="startVoiceInput()">🎤</button>
-      <input type="submit" value="Send">
-    </form>
-  </div>
-
-  <script>
-    // Voice Input
-    function startVoiceInput() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'en-US';
-      recognition.start();
-
-      recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("questionBox").value = transcript;
-      };
-
-      recognition.onerror = function(event) {
-        alert("Voice input failed: " + event.error);
-      };
-    }
-
-    // Auto scroll to bottom
-    const chatContainer = document.getElementById("chat-container");
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  </script>
-</body>
-</html>
-"""
+if __name__ == '__main__':
+    app.run(debug=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))  # Use PORT from environment variable
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
