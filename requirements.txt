@@ -1,0 +1,7 @@
+Flask
+pandas
+requests
+beautifulsoup4
+google-generativeai
+openpyxl
+scikit-learn
