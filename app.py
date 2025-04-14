@@ -200,8 +200,7 @@ def index():
     """, answer=answer)
 
 if __name__ == '__main__':
-    # Manually specify the port
-    port = 5000  # You can change this if necessary, but 5000 is commonly used
+    # Ensure the app binds to the correct port using the PORT environment variable
+    port = int(os.getenv('PORT', 5000))  # Default to 5000 if PORT is not set
     print(f"\n🌐 Chatbot is running at: http://0.0.0.0:{port}")
-    # Use '0.0.0.0' to bind to all interfaces and listen on the specified port
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port)  # Ensure binding to 0.0.0.0 and the correct port
