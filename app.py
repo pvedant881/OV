@@ -304,6 +304,7 @@ template = """
       align-self: flex-start;
       border-bottom-left-radius: 0;
       border-left: 4px solid #007BFF;
+      position: relative;
     }
 
     .chat-form {
@@ -403,13 +404,26 @@ template = """
 <body>
   <div class="chat-container" id="chat-container">
     {% for item in history|reverse %}
-      <div class="message {{ 'user' if item.role == 'user' else 'bot' }}">
+      <div class="message {{ 'user' if item.role == 'user' else 'bot' }}" id="message-{{ loop.index }}">
         {{ item.text | safe }}
         {% if item.role == 'bot' %}
           <script>
-            const utter = new SpeechSynthesisUtterance(`{{ item.text | striptags | escape | replace('"', '') }}`);
-            utter.lang = 'en-US';
-            window.speechSynthesis.speak(utter);
+            // Typewriter effect for bot's message
+            const messageId = "message-{{ loop.index }}";
+            const messageText = "{{ item.text | striptags | escape | replace('"', '') }}";
+            let i = 0;
+            const messageElement = document.getElementById(messageId);
+            messageElement.innerHTML = ''; // Clear message initially
+
+            function typeWriter() {
+              if (i < messageText.length) {
+                messageElement.innerHTML += messageText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50); // Adjust typing speed (in ms)
+              }
+            }
+
+            typeWriter(); // Start typing effect
           </script>
         {% endif %}
         {% if 'img class="product-image"' in item.text %}
