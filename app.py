@@ -29,9 +29,8 @@ file_paths = [
 # --- Websites to crawl ---
 websites = [
     "https://www.bannerbuzz.com/",
-    "https://www.coversandall.com/",
-    "https://www.bestofsigns.com/"
-]
+    "https://www.coversandall.com/"
+    ]
 
 # --- Read local files ---
 def read_file(file_path):
@@ -47,7 +46,7 @@ def read_file(file_path):
         return f"Error reading {file_path}: {e}"
 
 # --- Crawl website content deeply (up to 10,000 pages) ---
-def crawl_website(base_url, max_pages=10):
+def crawl_website(base_url, max_pages=1000):
     visited = set()
     to_visit = [base_url]
     contents = []
