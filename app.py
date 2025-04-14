@@ -9,6 +9,7 @@ import re
 import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from markupsafe import Markup
 
 # --- Setup Gemini API ---
 GEMINI_API_KEY = 'AIzaSyBF77bxroQkBHJ2Q1PhUlHtJLb8yhruVi8'  # Replace with your actual API key
@@ -77,6 +78,15 @@ def crawl_website(base_url, max_pages=1000):
         except Exception as e:
             contents.append(f"Error scraping {url}: {e}")
     return "\n\n".join(contents)
+    
+def markdown_to_html(text):
+    # Convert markdown-style links to clickable HTML
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" target="_blank">\1</a>', text)
+    # Convert raw URLs to links (optional)
+    text = re.sub(r'(https?://\S+)', r'<a href="\1" target="_blank">\1</a>', text)
+    # Replace newlines with <br> for HTML line breaks
+    text = text.replace('\n', '<br>')
+    return Markup(text)
 
 # --- Function to split large data into chunks based on relevance using TF-IDF ---
 def chunk_data(data, user_query, top_n=5):
@@ -337,9 +347,6 @@ Answer helpfully and clearly:
 </body>
 </html>
     """, answer=answer)
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))  # Use PORT from environment variable
