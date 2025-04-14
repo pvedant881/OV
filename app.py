@@ -263,7 +263,6 @@ template = """
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OneVoice Assistant</title>
   <style>
-    /* General resets and layout */
     html, body {
       margin: 0;
       padding: 0;
@@ -275,6 +274,7 @@ template = """
     body {
       display: flex;
       flex-direction: column;
+      height: 100%;
     }
 
     .chat-container {
@@ -297,7 +297,6 @@ template = """
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       position: relative;
       transition: all 0.3s ease;
-      font-size: 1rem;
     }
 
     .user {
@@ -319,24 +318,40 @@ template = """
       padding: 16px;
       border-top: 1px solid #ddd;
       background-color: #fff;
-      align-items: center;
+      justify-content: flex-start;
       gap: 10px;
-      justify-content: space-between;
+      align-items: center;
     }
 
     textarea {
-      flex: 1;
+      width: 85%;
       padding: 14px;
       font-size: 1em;
-      border-radius: 12px;
+      border-radius: 16px;
       border: 1px solid #ccc;
       resize: none;
       outline: none;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       font-family: 'Segoe UI', sans-serif;
+      transition: all 0.3s ease;
     }
 
-    input[type="submit"], .mic-btn {
+    .mic-btn {
+      padding: 14px;
+      font-size: 1em;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .mic-btn:hover {
+      background-color: #0056b3;
+    }
+
+    input[type="submit"] {
       padding: 14px 20px;
       font-size: 1em;
       background-color: #007BFF;
@@ -347,22 +362,8 @@ template = """
       transition: background-color 0.3s ease;
     }
 
-    input[type="submit"]:hover, .mic-btn:hover {
+    input[type="submit"]:hover {
       background-color: #0056b3;
-    }
-
-    .mic-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    img.product-image {
-      max-width: 240px;
-      margin-top: 12px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      display: block;
     }
 
     .image-tools {
@@ -408,6 +409,13 @@ template = """
     ::-webkit-scrollbar-thumb:hover {
       background: #999;
     }
+
+    /* Ensure the chat input and buttons are aligned */
+    .chat-form button,
+    .chat-form input[type="submit"] {
+      margin-left: 10px;
+    }
+
   </style>
 </head>
 <body>
