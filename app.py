@@ -46,7 +46,7 @@ def read_file(file_path):
         return f"Error reading {file_path}: {e}"
 
 # --- Crawl website content deeply (up to 10,000 pages) ---
-def crawl_website(base_url, max_pages=1000):
+def crawl_website(base_url, max_pages=100):
     visited = set()
     to_visit = [base_url]
     contents = []
