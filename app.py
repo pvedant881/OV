@@ -200,7 +200,5 @@ def index():
     """, answer=answer)
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))  # Render defaults to 10000
-    print(f"🌐 Running on http://0.0.0.0:{port}")
+    port = int(os.environ.get('PORT', 10000))  # Use PORT from environment variable
     app.run(host='0.0.0.0', port=port)
-    
