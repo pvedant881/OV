@@ -1,5 +1,4 @@
-# Token free code
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, session
 import pandas as pd
 import os
 import requests
@@ -30,7 +29,7 @@ file_paths = [
 websites = [
     "https://www.bannerbuzz.com/",
     "https://www.coversandall.com/"
-    ]
+]
 
 # --- Read local files ---
 def read_file(file_path):
@@ -109,84 +108,146 @@ combined_data = prepare_data()
 end_time = time.time()
 print(f"\n✅ Data ready in {int(end_time - start_time)} seconds.")
 
+# --- Set up session for history ---
+app.secret_key = 'your_secret_key'  # Replace with a secure secret key
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     answer = ""
+    if 'history' not in session:
+        session['history'] = []
+
     if request.method == 'POST':
         question = request.form.get('question')
-        
+
         # Chunk data intelligently based on user's query
         relevant_chunks = chunk_data(combined_data, question)
 
+        # Add to history
+        session['history'].append({'role': 'user', 'text': question})
+
+        # Keep last 3 turns of conversation (user-bot)
+        recent_history = session['history'][-6:]  # 3 user-bot pairs
+
+        # Build context
+        conversation_context = ""
+        for h in recent_history:
+            role = "User" if h['role'] == 'user' else "Bot"
+            conversation_context += f"{role}: {h['text']}\n"
+
         prompt = f"""
-        You are a smart assistant with access to local business files and website data.
+You are a smart assistant with access to business documents and website content.
 
-        A user asked: "{question}"
+Previous conversation:
+{conversation_context}
 
-        Based on the data below, provide a helpful and detailed answer:
+Current question: "{question}"
 
-        Relevant Data:
-        {''.join(relevant_chunks)}
-        """
+Relevant data:
+{''.join(relevant_chunks)}
+
+Answer helpfully and clearly:
+"""
+
         try:
             response = model.generate_content(prompt)
             answer = response.text
+            session['history'].append({'role': 'bot', 'text': answer})
         except Exception as e:
             answer = f"Error: {e}"
 
-    return render_template_string("""
+    return render_template_string(template, answer=answer, history=session['history'])
+
+# --- Clear history route (optional) ---
+@app.route('/clear')
+def clear():
+    session.clear()
+    return "History cleared. <a href='/'>Go back</a>"
+
+# --- HTML template ---
+template = """
 <html>
-    <head>
-        <title>Smart Business Chatbot</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                padding: 30px;
-                background-color: #f2f2f2;
-            }
-            .container {
-                background-color: white;
-                padding: 20px 30px;
-                border-radius: 10px;
-                max-width: 800px;
-                margin: auto;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            }
-            textarea {
-                width: 100%;
-                padding: 10px;
-                border-radius: 6px;
-                border: 1px solid #ccc;
-                resize: vertical;
-                font-size: 1em;
-            }
-            input[type=submit] {
-                padding: 10px 20px;
-                font-size: 1em;
-                background-color: #007BFF;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-            }
-            input[type=submit]:hover {
-                background-color: #0056b3;
-            }
-            .answer {
-                white-space: pre-wrap;
-                margin-top: 20px;
-                padding: 15px;
-                background-color: #f9f9f9;
-                border-left: 5px solid #007BFF;
-            }
-        </style>
-    </head>
-    <body>
+<head>
+    <title>OneVoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            font-size: 1em;
+        }
+        input[type=submit] {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        input[type=submit]:hover {
+            background-color: #0056b3;
+        }
+        .answer {
+            white-space: pre-wrap;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 5px solid #007BFF;
+        }
+        .history-item {
+            margin-bottom: 15px;
+        }
+        .history-item strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Conversation History</h3>
+        {% for item in history %}
+            <div class="history-item">
+                <strong>{{ "You" if item.role == "user" else "Gemini" }}:</strong>
+                <div>{{ item.text[:200] }}{% if item.text|length > 200 %}...{% endif %}</div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="content">
         <div class="container">
             <h2>Ask a Question about Your Business</h2>
             <form method="post">
                 <textarea name="question" rows="4" placeholder="e.g., What are common banner sizes?">{{ request.form.question or "" }}</textarea><br><br>
-                <input type="submit" value="Ask Gemini">
+                <input type="submit" value="Enter">
             </form>
             {% if answer %}
                 <div class="answer">
@@ -195,9 +256,10 @@ def index():
                 </div>
             {% endif %}
         </div>
-    </body>
-    </html>
-    """, answer=answer)
+    </div>
+</body>
+</html>
+"""
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))  # Use PORT from environment variable
