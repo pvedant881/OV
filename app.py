@@ -247,90 +247,95 @@ Answer helpfully and clearly:
             answer = f"Error generating response: {e}"
 
     return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ChatBot</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
-                padding: 20px;
-            }
-            .chat-container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #fff;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            }
-            .chat-box {
-                max-height: 400px;
-                overflow-y: auto;
-                margin-bottom: 20px;
-            }
-            .message {
-                padding: 10px;
-                margin: 10px 0;
-                border-radius: 5px;
-            }
-            .user {
-                background-color: #d1f7d7;
-                text-align: right;
-            }
-            .bot {
-                background-color: #e3e3e3;
-                text-align: left;
-            }
-            .input-container {
-                display: flex;
-                margin-top: 20px;
-            }
-            .input-container input {
-                flex: 1;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-            }
-            .input-container button {
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                background-color: #4CAF50;
-                color: white;
-                cursor: pointer;
-            }
-            .input-container button:hover {
-                background-color: #45a049;
-            }
-            .product-image {
-                max-width: 100px;
-                max-height: 100px;
-                margin: 10px 0;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="chat-container">
-            <h2>Chat with Our Support Agent</h2>
-            <div class="chat-box">
-                {% for message in session['history'] %}
-                    <div class="message {{ message['role'] }}">
-                        <strong>{{ message['role'] | capitalize }}:</strong>
-                        <p>{{ message['text'] | safe }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-            <form method="post" class="input-container">
-                <input type="text" name="question" placeholder="Ask me anything..." required>
-                <button type="submit">Send</button>
-            </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+        .user {
+            background-color: #d1f7d7;
+            text-align: right;
+        }
+        .bot {
+            background-color: #e3e3e3;
+            text-align: left;
+        }
+        .input-container {
+            display: flex;
+            margin-top: 20px;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .input-container button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #45a049;
+        }
+        .product-image {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 10px 0;
+        }
+        a {
+            color: #1a0dab;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Chat with Our Support Agent</h2>
+        <div class="chat-box">
+            {% for message in session['history'] %}
+                <div class="message {{ message['role'] }}">
+                    <strong>{{ message['role'] | capitalize }}:</strong>
+                    <div>{% autoescape false %}{{ message['text'] }}{% endautoescape %}</div>
+                </div>
+            {% endfor %}
         </div>
-    </body>
-    </html>
+        <form method="post" class="input-container">
+            <input type="text" name="question" placeholder="Ask me anything..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</body>
+</html>
     """, answer=answer)
 
 if __name__ == '__main__':
