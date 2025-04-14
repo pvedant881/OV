@@ -135,18 +135,66 @@ def index():
             answer = f"Error: {e}"
 
     return render_template_string("""
-    <html>
-    <head><title>Smart Business Chatbot</title></head>
-    <body style="font-family: Arial; padding: 30px;">
-        <h2>Ask a Question about Your Business</h2>
-        <form method="post">
-            <textarea name="question" rows="4" cols="80" placeholder="e.g., What are common banner sizes?">{{ request.form.question or "" }}</textarea><br><br>
-            <input type="submit" value="Ask Gemini" style="padding: 10px 20px;">
-        </form>
-        {% if answer %}
-            <hr><h3>Gemini Answer:</h3>
-            <div style="white-space: pre-wrap;">{{ answer }}</div>
-        {% endif %}
+<html>
+    <head>
+        <title>Smart Business Chatbot</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 30px;
+                background-color: #f2f2f2;
+            }
+            .container {
+                background-color: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                max-width: 800px;
+                margin: auto;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            textarea {
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                resize: vertical;
+                font-size: 1em;
+            }
+            input[type=submit] {
+                padding: 10px 20px;
+                font-size: 1em;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+            input[type=submit]:hover {
+                background-color: #0056b3;
+            }
+            .answer {
+                white-space: pre-wrap;
+                margin-top: 20px;
+                padding: 15px;
+                background-color: #f9f9f9;
+                border-left: 5px solid #007BFF;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Ask a Question about Your Business</h2>
+            <form method="post">
+                <textarea name="question" rows="4" placeholder="e.g., What are common banner sizes?">{{ request.form.question or "" }}</textarea><br><br>
+                <input type="submit" value="Ask Gemini">
+            </form>
+            {% if answer %}
+                <div class="answer">
+                    <h3>Gemini Answer:</h3>
+                    <div>{{ answer }}</div>
+                </div>
+            {% endif %}
+        </div>
     </body>
     </html>
     """, answer=answer)
