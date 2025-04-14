@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 from urllib.parse import urljoin
 import socket
+import re
 import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -116,7 +117,7 @@ def index():
     if 'history' not in session:
         session['history'] = []
         # Send opening message when user first visits
-        welcome_message = """👋 Hi there! Welcome to BannerBuzz! Thank you so much for stopping by. 😊
+        welcome_message = """👋 Hi there! Welcome to OneVoice! Thank you so much for stopping by. 😊
 I’m your friendly assistant here to help you find the perfect product, share accurate info, and make your journey smooth and delightful—every step of the way! 🎯
 
 Whether you’re looking for product details, images, pricing, or just need a quick recommendation—we’ve got you covered. 💬✨
@@ -232,6 +233,15 @@ Answer helpfully and clearly:
         try:
             response = model.generate_content(prompt)
             answer = response.text
+                # --- Auto convert image URLs to <img> tags ---
+            def convert_image_links(text):
+                # Match Markdown-style ![desc](url)
+                text = re.sub(r'!\[.*?\]\((https?:\/\/[^\s)]+)\)', r'<img src="\1" class="product-image">', text)
+                # Match raw image URLs
+                text = re.sub(r'(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif))', r'<img src="\1" class="product-image">', text)
+                return text
+
+            answer = convert_image_links(answer)
             session['history'].append({'role': 'bot', 'text': answer})
         except Exception as e:
             answer = f"Error: {e}"
@@ -246,95 +256,207 @@ def clear():
 
 # --- HTML template ---
 template = """
-<!-- Updated Chat Interface with Enhanced UI and Image Handling -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>OneVoice Assistant</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column-reverse;
-        }
-        .message {
-            max-width: 75%;
-            margin-bottom: 20px;
-            padding: 15px 20px;
-            border-radius: 12px;
-            white-space: pre-wrap;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .user {
-            background-color: #d4edff;
-            align-self: flex-end;
-            border-top-right-radius: 0;
-        }
-        .bot {
-            background-color: #ffffff;
-            align-self: flex-start;
-            border-left: 4px solid #007BFF;
-            border-top-left-radius: 0;
-        }
-        .chat-form {
-            display: flex;
-            padding: 20px;
-            background-color: #fff;
-            border-top: 1px solid #ccc;
-        }
-        textarea {
-            flex: 1;
-            padding: 12px;
-            font-size: 1em;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            resize: none;
-        }
-        input[type=submit] {
-            padding: 12px 24px;
-            margin-left: 10px;
-            font-size: 1em;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        input[type=submit]:hover {
-            background-color: #0056b3;
-        }
-        img.product-image {
-            max-width: 220px;
-            margin-top: 10px;
-            border-radius: 8px;
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OneVoice Assistant</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 16px 20px;
+      border-radius: 18px;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      word-wrap: break-word;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .user {
+      background-color: #dcf4ff;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot {
+      background-color: #ffffff;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+      border-left: 4px solid #007BFF;
+    }
+
+    .chat-form {
+      display: flex;
+      padding: 16px;
+      border-top: 1px solid #ddd;
+      background-color: #fff;
+      align-items: center;
+      gap: 10px;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 14px;
+      font-size: 1em;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      resize: none;
+      outline: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    input[type="submit"], .mic-btn {
+      padding: 14px 20px;
+      font-size: 1em;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover, .mic-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .mic-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    img.product-image {
+      max-width: 240px;
+      margin-top: 12px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      display: block;
+    }
+
+    .image-tools {
+      margin-top: 8px;
+    }
+
+    .image-tools a {
+      font-size: 0.85em;
+      margin-right: 12px;
+      text-decoration: none;
+      color: #007BFF;
+      cursor: pointer;
+    }
+
+    .image-tools a:hover {
+      text-decoration: underline;
+    }
+
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border: 4px solid #ddd;
+      border-top: 4px solid #007BFF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+  </style>
 </head>
 <body>
-    <div class="chat-container">
-        {% for item in history|reverse %}
-            <div class="message {{ 'user' if item.role == 'user' else 'bot' }}">
-                {{ item.text | safe }}
-            </div>
-        {% endfor %}
-    </div>
-    <div class="chat-form">
-        <form method="post">
-            <textarea name="question" placeholder="Ask your question here..." required>{{ request.form.question or '' }}</textarea>
-            <input type="submit" value="Send">
-        </form>
-    </div>
+  <div class="chat-container" id="chat-container">
+    {% for item in history|reverse %}
+      <div class="message {{ 'user' if item.role == 'user' else 'bot' }}">
+        {{ item.text | safe }}
+        {% if item.role == 'bot' %}
+          <script>
+            const utter = new SpeechSynthesisUtterance(`{{ item.text | striptags | escape | replace('"', '') }}`);
+            utter.lang = 'en-US';
+            window.speechSynthesis.speak(utter);
+          </script>
+        {% endif %}
+        {% if 'img class="product-image"' in item.text %}
+          <div class="image-tools">
+            {% set image_url = item.text.split('src="')[1].split('"')[0] %}
+            <a href="{{ image_url }}" target="_blank">View Full Image</a>
+            <a onclick="navigator.clipboard.writeText('{{ image_url }}'); alert('Image link copied!')">Copy Image Link</a>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    {% if loading %}
+      <div class="message bot">
+        <div class="loading-spinner"></div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="chat-form">
+    <form method="post">
+      <textarea name="question" rows="2" placeholder="Ask your question..." id="questionBox" required>{{ request.form.question or '' }}</textarea>
+      <button type="button" class="mic-btn" onclick="startVoiceInput()">🎤</button>
+      <input type="submit" value="Send">
+    </form>
+  </div>
+
+  <script>
+    // Voice Input
+    function startVoiceInput() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("questionBox").value = transcript;
+      };
+
+      recognition.onerror = function(event) {
+        alert("Voice input failed: " + event.error);
+      };
+    }
+
+    // Auto scroll to bottom
+    const chatContainer = document.getElementById("chat-container");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  </script>
 </body>
 </html>
 """
