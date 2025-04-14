@@ -199,8 +199,8 @@ def index():
     </html>
     """, answer=answer)
 
-# --- Run server after data is ready ---
 if __name__ == '__main__':
-    local_ip = socket.gethostbyname(socket.gethostname())
-    print(f"\n🌐 Chatbot is running at: http://{local_ip}:5000")
-    app.run(host='0.0.0.0', port=5000)
+    # Use the port provided by Render
+    port = int(os.getenv('PORT', 5000))  # Default to 5000 if the environment variable is not set
+    print(f"\n🌐 Chatbot is running at: http://0.0.0.0:{port}")
+    app.run(host='0.0.0.0', port=port)
