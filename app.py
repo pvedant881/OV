@@ -113,9 +113,20 @@ app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    answer = ""
     if 'history' not in session:
         session['history'] = []
+        # Send opening message when user first visits
+        welcome_message = """👋 Hi there! Welcome to BannerBuzz! Thank you so much for stopping by. 😊
+I’m your friendly assistant here to help you find the perfect product, share accurate info, and make your journey smooth and delightful—every step of the way! 🎯
+
+Whether you’re looking for product details, images, pricing, or just need a quick recommendation—we’ve got you covered. 💬✨
+
+Just ask your question, and I’ll fetch the best info straight from our trusted knowledge base. 🔍 Let’s get started! 🚀
+
+**PS:** If you are looking for SKUs, only refer to the numbers."""
+        session['history'].append({'role': 'bot', 'text': welcome_message})
+
+    answer = ""
 
     if request.method == 'POST':
         question = request.form.get('question')
@@ -235,96 +246,94 @@ def clear():
 
 # --- HTML template ---
 template = """
+<!-- Updated Chat Interface with Enhanced UI and Image Handling -->
 <html>
 <head>
-    <title>OneVoice</title>
+    <title>OneVoice Assistant</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
-            display: flex;
-        }
-        .sidebar {
-            width: 300px;
-            background-color: #ffffff;
-            border-right: 1px solid #ddd;
-            padding: 20px;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container {
+            flex: 1;
             overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column-reverse;
         }
-        .content {
-            flex-grow: 1;
-            padding: 30px;
+        .message {
+            max-width: 75%;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .container {
-            background-color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        .user {
+            background-color: #d4edff;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+        .bot {
+            background-color: #ffffff;
+            align-self: flex-start;
+            border-left: 4px solid #007BFF;
+            border-top-left-radius: 0;
+        }
+        .chat-form {
+            display: flex;
+            padding: 20px;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
         }
         textarea {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            resize: vertical;
+            flex: 1;
+            padding: 12px;
             font-size: 1em;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            resize: none;
         }
         input[type=submit] {
-            padding: 10px 20px;
+            padding: 12px 24px;
+            margin-left: 10px;
             font-size: 1em;
             background-color: #007BFF;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         input[type=submit]:hover {
             background-color: #0056b3;
         }
-        .answer {
-            white-space: pre-wrap;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-left: 5px solid #007BFF;
-        }
-        .history-item {
-            margin-bottom: 15px;
-        }
-        .history-item strong {
+        img.product-image {
+            max-width: 220px;
+            margin-top: 10px;
+            border-radius: 8px;
             display: block;
-            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h3>Conversation History</h3>
-        {% for item in history %}
-            <div class="history-item">
-                <strong>{{ "You" if item.role == "user" else "Gemini" }}:</strong>
-                <div>{{ item.text[:200] }}{% if item.text|length > 200 %}...{% endif %}</div>
+    <div class="chat-container">
+        {% for item in history|reverse %}
+            <div class="message {{ 'user' if item.role == 'user' else 'bot' }}">
+                {{ item.text | safe }}
             </div>
         {% endfor %}
     </div>
-    <div class="content">
-        <div class="container">
-            <h2>Ask a Question about Your Business</h2>
-            <form method="post">
-                <textarea name="question" rows="4" placeholder="e.g., What are common banner sizes?">{{ request.form.question or "" }}</textarea><br><br>
-                <input type="submit" value="Enter">
-            </form>
-            {% if answer %}
-                <div class="answer">
-                    <h3>Knowledge Base:</h3>
-                    <div>{{ answer }}</div>
-                </div>
-            {% endif %}
-        </div>
+    <div class="chat-form">
+        <form method="post">
+            <textarea name="question" placeholder="Ask your question here..." required>{{ request.form.question or '' }}</textarea>
+            <input type="submit" value="Send">
+        </form>
     </div>
 </body>
 </html>
