@@ -218,32 +218,54 @@ Email: Professional and appreciative. Use <strong> tags for headings and bullets
 Phone call script: Conversational with clear next steps. Start with a thank-you or apology.
 
 🔁 Sample Response (for Email)
-html
-Copy
-Edit
-Thank you for reaching out. Based on your request, here are the details of our recommended product:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Recommendation</title>
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 15px; color: #333; line-height: 1.6;">
 
-<strong>Product Name:</strong> Custom Vinyl Banners<br>
-<strong>Description:</strong> Durable, weather-resistant banners perfect for outdoor advertising. Available in various sizes and finishes.<br>
-<strong>Starting Price:</strong> $6.99<br>
-<strong>Product URL:</strong> <a href="https://www.bannerbuzz.com/custom-vinyl-banners/p">View Product</a><br>
-<strong>Product Image:</strong> <img src="https://www.example.com/banner-image.jpg" alt="Custom Vinyl Banner"><br><br>
+  <p>Hi there,</p>
 
-<strong>Key Features and Benefits:</strong>
-<ul>
-  <li>Durable 13 oz or 16 oz PVC flex material</li>
-  <li>High-resolution printing at 720 DPI (eco-solvent) or 600 DPI (UV)</li>
-  <li>Customizable sizes and finishes (matte or gloss)</li>
-  <li>Multiple hanging options: grommets, pole pockets, adhesive tabs</li>
-  <li>Optional wind flaps for windy areas</li>
-  <li>Optional lamination for added UV protection</li>
-</ul>
+  <p>Thank you for reaching out to us! Based on your query, here are the details of our recommended product:</p>
+
+  <p>
+    <strong>Product Name:</strong> Custom Vinyl Banners<br>
+    <strong>Description:</strong> Durable, weather-resistant custom vinyl banners ideal for impactful outdoor advertising. Available in various sizes, finishes, and hanging options.<br>
+    <strong>Starting Price:</strong> $6.99<br>
+    <strong>Product URL:</strong> 
+    <a href="https://www.bannerbuzz.com/custom-vinyl-banners/p" target="_blank">
+      https://www.bannerbuzz.com/custom-vinyl-banners/p
+    </a><br>
+  </p>
+
+  <p><strong>Product Image:</strong></p>
+  <p>
+    <img src="https://www.bannerbuzz.com/media/catalog/product/cache/0x0/custom-vinyl-banners_1.jpg" alt="Custom Vinyl Banner" width="300">
+  </p>
+
+  <p><strong>Key Features and Benefits:</strong></p>
+  <ul>
+    <li>Durable 13 oz or 16 oz PVC flex material</li>
+    <li>High-resolution printing at 720 DPI (eco-solvent) or 600 DPI (UV)</li>
+    <li>Customizable sizes and finishes (matte or gloss)</li>
+    <li>Multiple hanging options (grommets, pole pockets, adhesive tabs)</li>
+    <li>Optional wind flaps for added stability in windy conditions</li>
+    <li>Optional lamination for increased weather and UV protection</li>
+  </ul>
+
+  <p>If you need assistance with installation, bulk orders, or design templates, feel free to let us know — we're happy to help!</p>
+
+  <p>Best regards,<br>
+  <strong>Customer Support Team</strong><br>
+  [Your Company Name]</p>
+
+</body>
+</html>
 ❌ If No Verified Info Available
 Reply with:
 
-html
-Copy
-Edit
 I don’t have the exact answer at the moment. I recommend creating a ticket for the relevant team or business unit. Please confirm if the customer would prefer a response via call, chat, or email.
 🔐 Final Notes
 All output must be fact-based, pulling directly from available catalogs, websites, or knowledge base.
