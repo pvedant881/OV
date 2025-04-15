@@ -58,6 +58,14 @@ async def fetch_page(session, url):
     except Exception as e:
         return (url, f"Error: {e}", [])
 
+async def save_crawled_data(contents, filename="data/crawled_data.txt"):
+    try:
+        async with aiofiles.open(filename, mode='a') as file:
+            for content in contents:
+                await file.write(content + "\n\n")
+    except Exception as e:
+        print(f"Error saving crawled data: {e}")
+
 async def crawl_website_async(base_url, max_pages=100):
     visited = set()
     to_visit = [base_url]
@@ -81,6 +89,11 @@ async def crawl_website_async(base_url, max_pages=100):
                         if base_url in link and link not in visited and link not in to_visit:
                             to_visit.append(link)
     return contents
+
+# --- Function to start async crawling on app startup ---
+async def start_crawling():
+    for website in websites:
+        await crawl_website_async(website)
 
 # --- Crawl website content deeply (up to 100 pages) ---
 def crawl_website(base_url, max_pages=100):
