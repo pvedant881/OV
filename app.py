@@ -1,7 +1,9 @@
 from flask import Flask, request, render_template_string, session
 import pandas as pd
 import os
-import requests
+import asyncio
+import aiohttp
+import aiofiles
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 from urllib.parse import urljoin
@@ -44,6 +46,41 @@ def read_file(file_path):
         return f"\nData from {os.path.basename(file_path)}:\n{df.head(10).to_string(index=False)}\n"
     except Exception as e:
         return f"Error reading {file_path}: {e}"
+# --- Async crawler ---
+async def fetch_page(session, url):
+    try:
+        async with session.get(url, timeout=10) as response:
+            text = await response.text()
+            soup = BeautifulSoup(text, 'html.parser')
+            clean_text = " ".join(soup.stripped_strings)[:3000]
+            links = [urljoin(url, a['href']) for a in soup.find_all('a', href=True)]
+            return (url, clean_text, links)
+    except Exception as e:
+        return (url, f"Error: {e}", [])
+
+async def crawl_website_async(base_url, max_pages=100):
+    visited = set()
+    to_visit = [base_url]
+    contents = []
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    async with aiohttp.ClientSession(headers=headers) as session:
+        while to_visit and len(visited) < max_pages:
+            tasks = []
+            while to_visit and len(tasks) < 10:
+                url = to_visit.pop(0)
+                if url not in visited:
+                    tasks.append(fetch_page(session, url))
+            results = await asyncio.gather(*tasks)
+            for url, text, links in results:
+                if url not in visited:
+                    contents.append(f"--- Content from {url} ---\n{text}")
+                    visited.add(url)
+                    for link in links:
+                        if base_url in link and link not in visited and link not in to_visit:
+                            to_visit.append(link)
+    return contents
 
 # --- Crawl website content deeply (up to 100 pages) ---
 def crawl_website(base_url, max_pages=100):
