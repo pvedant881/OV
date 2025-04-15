@@ -6,3 +6,5 @@ google-generativeai
 openpyxl
 scikit-learn
 gunicorn
+aiohttp
+aiofiles
