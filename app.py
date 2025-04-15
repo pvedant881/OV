@@ -218,51 +218,21 @@ Keep chat responses short, friendly, and formatted using HTML <strong>, <a>, and
 
 For phone support, script-style replies are encouraged. Think of agent prompts + your suggested lines.
 Email Template (Only When Explicitly Asked)
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Product Recommendation</title>
-</head>
-<body style="font-family: Arial, sans-serif; font-size: 15px; color: #333; line-height: 1.6;">
-
-  <p>Hi there,</p>
-
-  <p>Thank you for reaching out to us! Based on your query, here are the details of our recommended product:</p>
-
-  <p>
-    <strong>Product Name:</strong> Custom Vinyl Banners<br>
-    <strong>Description:</strong> Durable, weather-resistant custom vinyl banners ideal for impactful outdoor advertising. Available in various sizes, finishes, and hanging options.<br>
-    <strong>Starting Price:</strong> $6.99<br>
-    <strong>Product URL:</strong> 
-    <a href="https://www.bannerbuzz.com/custom-vinyl-banners/p" target="_blank">
-      https://www.bannerbuzz.com/custom-vinyl-banners/p
-    </a><br>
-  </p>
-
-  <p><strong>Product Image:</strong></p>
-  <p>
-    <img src="https://www.bannerbuzz.com/media/catalog/product/cache/0x0/custom-vinyl-banners_1.jpg" alt="Custom Vinyl Banner" width="300">
-  </p>
-
-  <p><strong>Key Features and Benefits:</strong></p>
-  <ul>
-    <li>Durable 13 oz or 16 oz PVC flex material</li>
-    <li>High-resolution printing at 720 DPI (eco-solvent) or 600 DPI (UV)</li>
-    <li>Customizable sizes and finishes (matte or gloss)</li>
-    <li>Multiple hanging options (grommets, pole pockets, adhesive tabs)</li>
-    <li>Optional wind flaps for added stability in windy conditions</li>
-    <li>Optional lamination for increased weather and UV protection</li>
-  </ul>
-
-  <p>If you need assistance with installation, bulk orders, or design templates, feel free to let us know — we're happy to help!</p>
-
-  <p>Best regards,<br>
-  <strong>Customer Support Team</strong><br>
-  [Your Company Name]</p>
-
-</body>
-</html>
+> Thank you for choosing us! Based on your query, here are two recommended patio furniture covers under ₹5000:  
+>
+> 1. Waterproof Outdoor Cover
+> - Price starts at ₹3,299  
+> - UV resistant, custom size options  
+> - [View Product](https://www.example.com/waterproof-outdoor-cover)  
+> - ![Product Image](https://www.example.com/image.jpg)  
+>
+> 2. Heavy-Duty Fabric Cover 
+> - Price starts at ₹4,799  
+> - Windproof straps, 5-year warranty  
+> - [View Product](https://www.example.com/heavy-duty-cover)  
+> - ![Product Image](https://www.example.com/image2.jpg)
+ 
+If you need installation guidance or bulk quotes, let us know how we can assist further.
 
 When Information is Missing
 If no verified information is found:
