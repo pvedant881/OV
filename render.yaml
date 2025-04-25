@@ -1,12 +1,7 @@
 services:
   - type: web
-    name: flask-chatbot
+    name: do-you-like-me
     env: python
+    buildCommand: ""
+    startCommand: python app.py
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: GEMINI_API_KEY
-        value: AIzaSyBF77bxroQkBHJ2Q1PhUlHtJLb8yhruVi8
